@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Scripture Deep</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100%;font-family:'Lora',serif;-webkit-font-smoothing:antialiased;overflow-x:hidden;background:#000;}
+button{cursor:pointer;font-family:inherit;background:none;border:none;}
+input{font-family:inherit;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* ══ HOME SCREEN — MELI'S DESIGN ══ */
+#s-library{color:#fff;}
+.home-topbar{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,0.2);backdrop-filter:blur(6px);position:relative;z-index:5;}
+.home-logo{font-family:'Cinzel',serif;font-size:13px;letter-spacing:3px;color:rgba(255,255,255,0.95);}
+.home-badge{background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;padding:6px 12px;border-radius:6px;}
+
+/* Hero */
+.hero{display:flex;flex-direction:column;align-items:center;padding:20px 20px 16px;position:relative;min-height:260px;}
+.sky-bg{position:absolute;inset:0;z-index:0;transition:background 3s ease;}
+.rays-wrap{position:absolute;top:0;left:50%;transform:translateX(-50%);width:340px;height:260px;z-index:1;pointer-events:none;}
+.cross-container{position:relative;z-index:2;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(255,220,100,0.6));}
+.hero-title{position:relative;z-index:2;font-family:'Cinzel',serif;font-size:21px;letter-spacing:4px;color:#fff;text-shadow:0 2px 16px rgba(0,0,0,0.5);margin-bottom:4px;}
+.hero-sub{position:relative;z-index:2;font-style:italic;font-size:13px;color:rgba(255,255,255,0.75);margin-bottom:14px;}
+
+/* Daily verse */
+.daily-card{background:rgba(0,0,0,0.3);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:14px 18px;margin:0 16px 0;position:relative;z-index:3;text-align:center;}
+.daily-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:rgba(255,220,100,0.8);margin-bottom:8px;}
+.daily-text{font-style:italic;font-size:14px;line-height:1.7;color:#fff;margin-bottom:6px;}
+.daily-ref{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;color:rgba(255,220,100,0.9);}
+
+/* Library panel */
+.lib-panel{background:#000;border-radius:24px 24px 0 0;flex:1;padding:20px 16px 60px;margin-top:16px;position:relative;z-index:3;}
+.lib-title{font-family:'Cinzel',serif;font-size:16px;color:#fff;letter-spacing:2px;margin-bottom:3px;}
+.lib-sub{font-style:italic;color:#b8924a;font-size:13px;margin-bottom:16px;}
+.explore-row{display:flex;align-items:center;gap:10px;background:rgba(201,150,12,0.1);border:1px solid rgba(201,150,12,0.3);border-radius:10px;padding:12px 14px;margin-bottom:16px;width:100%;text-align:left;color:#e8b84b;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;}
+.search-inp{width:100%;padding:11px 14px;border-radius:10px;border:1.5px solid rgba(180,140,80,0.2);background:#111;color:#fff;font-size:14px;outline:none;margin-bottom:12px;}
+.search-inp::placeholder{color:#555;}
+.tabs{display:flex;gap:8px;margin-bottom:14px;}
+.tab{flex:1;padding:8px 4px;border-radius:8px;border:1px solid rgba(180,140,80,0.18);background:#111;color:#555;font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;}
+.tab.active{border-color:#C9960C;background:rgba(201,150,12,0.15);color:#e8b84b;}
+.sec-lbl{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:#555;padding-bottom:8px;margin-bottom:10px;border-bottom:1px solid rgba(180,140,80,0.12);}
+.book-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;}
+.book-btn{padding:12px 12px;border-radius:10px;border:1px solid rgba(180,140,80,0.18);background:#111;text-align:left;width:100%;}
+.book-btn:active{background:rgba(201,150,12,0.12);border-color:#8B6914;}
+.bname{font-family:'Cinzel',serif;font-size:13px;color:#fff;line-height:1.3;margin-bottom:3px;}
+.bmeta{font-size:11px;color:#555;}
+.footer-copy{text-align:center;padding:20px 0 6px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:#333;}
+
+/* ══ ALL OTHER SCREENS — BLACK/WHITE ══ */
+#s-trans,#s-chapters,#s-reader,#s-theology{background:#000;color:#fff;}
+.topbar{position:sticky;top:0;z-index:50;background:#000;border-bottom:1px solid rgba(180,140,80,0.18);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.logo{display:flex;align-items:center;gap:8px;}
+.logo-txt{font-family:'Cinzel',serif;font-size:13px;color:#fff;letter-spacing:2px;}
+.badge{background:rgba(201,150,12,0.12);border:1px solid rgba(201,150,12,0.4);color:#e8b84b;font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;padding:6px 12px;border-radius:6px;}
+.back-btn{color:#8B6914;font-size:14px;display:flex;align-items:center;gap:6px;padding:4px 0;}
+.content{flex:1;padding:16px;width:100%;padding-bottom:60px;}
+.pg-title{font-family:'Cinzel',serif;font-size:18px;color:#fff;letter-spacing:2px;margin-bottom:4px;}
+.pg-sub{font-style:italic;color:#b8924a;font-size:13px;margin-bottom:18px;}
+
+/* TRANSLATION */
+.tc{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(180,140,80,0.18);background:#111;width:100%;margin-bottom:10px;}
+.tc.sel{border-color:#C9960C;background:rgba(201,150,12,0.1);}
+.tc-code{font-family:'Cinzel',serif;font-weight:600;font-size:15px;color:#fff;margin-bottom:2px;}
+.tc-name{font-size:12px;color:#b8924a;}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid #555;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tc.sel .radio{border-color:#C9960C;background:#C9960C;}
+.radio-dot{width:7px;height:7px;border-radius:50%;background:#000;}
+
+/* CHAPTERS */
+.ch-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.ch-btn{aspect-ratio:1;border-radius:10px;border:1px solid rgba(180,140,80,0.18);background:#111;color:#fff;font-family:'Cinzel',serif;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;width:100%;}
+.ch-btn:active{background:rgba(201,150,12,0.2);border-color:#C9960C;color:#e8b84b;}
+
+/* READER */
+.reader-wrap{flex:1;padding:16px;width:100%;padding-bottom:80px;}
+.ch-title{font-family:'Cinzel',serif;font-size:18px;color:#fff;letter-spacing:2px;margin-bottom:10px;}
+.ch-hint{font-style:italic;color:#b8924a;font-size:13px;margin-bottom:20px;padding:10px 14px;background:rgba(201,150,12,0.06);border-left:3px solid rgba(201,150,12,0.3);border-radius:0 8px 8px 0;}
+.v-row{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px;padding:10px 8px;border-radius:10px;cursor:pointer;}
+.v-row:active{background:rgba(201,150,12,0.08);}
+.vn-wrap{display:flex;flex-direction:column;align-items:center;flex-shrink:0;min-width:28px;}
+.vnum{font-family:'Cinzel',serif;font-size:12px;color:#8B6914;font-weight:600;letter-spacing:1px;}
+.vtap{font-size:8px;color:rgba(139,105,20,0.4);font-family:'Cinzel',serif;letter-spacing:0.5px;margin-top:2px;}
+.vtxt{font-size:16px;line-height:1.9;color:#fff;flex:1;}
+.load-box{text-align:center;padding:50px 20px;color:#555;font-style:italic;}
+.spinner{width:32px;height:32px;border:3px solid rgba(139,105,20,0.2);border-top-color:#C9960C;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ANALYSIS OVERLAY */
+.overlay{display:none;position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.82);align-items:flex-end;}
+.overlay.open{display:flex;}
+.sheet{background:#0a0a0a;border-radius:20px 20px 0 0;border-top:1px solid rgba(201,150,12,0.3);width:100%;max-height:90vh;overflow-y:auto;padding-bottom:40px;position:relative;}
+.sh-handle{width:36px;height:4px;background:rgba(180,140,80,0.3);border-radius:2px;margin:14px auto 6px;}
+.sh-close{position:absolute;top:12px;right:14px;color:#555;font-size:22px;padding:6px;z-index:10;}
+.sh-inner{padding:8px 18px 0;}
+.av-card{background:linear-gradient(135deg,#8B6914,#C9960C);border-radius:14px;padding:20px 18px;margin-bottom:14px;position:relative;overflow:hidden;}
+.av-card::before{content:'"';position:absolute;top:-10px;right:-4px;font-size:100px;opacity:.08;font-family:'Cinzel',serif;color:#fff;line-height:1;pointer-events:none;}
+.av-txt{font-style:italic;font-size:16px;line-height:1.85;color:#fff;margin-bottom:12px;}
+.av-ref{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:rgba(255,255,255,0.7);}
+.sum-box{background:#111;border-radius:12px;border:1px solid rgba(180,140,80,0.18);padding:14px 16px;margin-bottom:10px;}
+.sum-lbl{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:#555;margin-bottom:7px;}
+.sum-txt{font-size:15px;line-height:1.85;color:#fff;}
+.acc{background:#111;border-radius:12px;border:1px solid rgba(180,140,80,0.18);margin-bottom:8px;overflow:hidden;}
+.acc.open{border-color:rgba(201,150,12,0.4);}
+.acc-hd{width:100%;padding:13px 14px;background:none;border:none;display:flex;align-items:center;justify-content:space-between;text-align:left;cursor:pointer;}
+.acc-l{display:flex;align-items:center;gap:9px;}
+.acc-ic{font-size:16px;}
+.acc-t{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1.5px;color:#b8924a;}
+.acc.open .acc-t{color:#e8b84b;}
+.acc-ar{color:#8B6914;font-size:17px;transition:transform .2s;}
+.acc.open .acc-ar{transform:rotate(90deg);}
+.acc-bd{display:none;padding:0 14px 14px;}
+.acc.open .acc-bd{display:block;}
+.acc-dv{height:1px;background:rgba(180,140,80,0.18);margin-bottom:11px;}
+.acc-ct{font-size:15px;line-height:1.85;color:#fff;white-space:pre-line;}
+.pray-box{background:linear-gradient(135deg,rgba(139,105,20,.15),rgba(201,150,12,.08));border:1.5px solid rgba(201,150,12,0.4);border-radius:12px;padding:16px 18px;margin:4px 0 16px;}
+.pray-hd{display:flex;align-items:center;gap:8px;margin-bottom:9px;}
+.pray-lb{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:#8B6914;}
+.pray-tx{font-style:italic;font-size:15px;line-height:1.85;color:#fff;}
+.an-load{text-align:center;padding:40px 20px;}
+.an-load p{font-family:'Cinzel',serif;color:#8B6914;font-size:13px;letter-spacing:1px;margin-top:12px;}
+.an-load small{font-style:italic;color:#555;font-size:12px;display:block;margin-top:6px;}
+.an-err{background:rgba(180,40,40,.1);border:1px solid rgba(180,40,40,.3);border-radius:12px;padding:18px;text-align:center;color:#e88;font-size:14px;line-height:1.6;margin-bottom:16px;}
+.close-btn-sm{background:rgba(201,150,12,0.15);border:1px solid rgba(201,150,12,0.4);color:#e8b84b;padding:10px 20px;border-radius:8px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;display:block;margin:0 auto;}
+
+/* THEOLOGY */
+.theo-wrap{position:relative;margin-bottom:14px;}
+.theo-inp{width:100%;padding:12px 50px 12px 14px;border-radius:10px;border:1.5px solid rgba(180,140,80,0.3);background:#111;color:#fff;font-size:14px;outline:none;}
+.theo-inp::placeholder{color:#555;}
+.theo-go{position:absolute;right:8px;top:50%;transform:translateY(-50%);background:rgba(201,150,12,0.2);border:1px solid rgba(201,150,12,0.4);color:#e8b84b;border-radius:6px;padding:6px 12px;font-size:13px;}
+.topic-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;}
+.topic-btn{padding:7px 12px;border-radius:20px;border:1px solid rgba(180,140,80,0.25);background:#111;color:#b8924a;font-size:13px;}
+.topic-btn:active{background:rgba(201,150,12,0.12);}
+</style>
+</head>
+<body>
+
+<!-- ══ TRANSLATION SCREEN ══ -->
+<div id="s-trans" class="screen">
+  <div class="topbar">
+    <div class="logo">
+      <svg width="14" height="14" viewBox="0 0 28 28" fill="none" style="color:#8B6914"><rect x="12" y="2" width="4" height="24" rx="1.5" fill="currentColor"/><rect x="4" y="9" width="20" height="4" rx="1.5" fill="currentColor"/></svg>
+      <span class="logo-txt">SCRIPTURE DEEP</span>
+    </div>
+  </div>
+  <div class="content">
+    <div class="pg-title">Translation</div>
+    <div class="pg-sub">Pick your Bible version</div>
+    <div id="trans-list"></div>
+  </div>
+</div>
+
+<!-- ══ HOME / LIBRARY SCREEN — MELI'S DESIGN ══ -->
+<div id="s-library" class="screen active">
+  <div class="sky-bg" id="sky-bg"></div>
+  <div class="home-topbar">
+    <div style="display:flex;align-items:center;gap:8px;">
+      <svg width="14" height="14" viewBox="0 0 28 28" fill="none" style="color:rgba(255,220,100,0.9)"><rect x="12" y="2" width="4" height="24" rx="1.5" fill="currentColor"/><rect x="4" y="9" width="20" height="4" rx="1.5" fill="currentColor"/></svg>
+      <span class="home-logo">SCRIPTURE DEEP</span>
+    </div>
+    <button class="home-badge" id="lib-badge" onclick="showScreen('s-trans')">KJV ▾</button>
+  </div>
+
+  <div class="hero" id="hero-section">
+    <!-- Sky background inside hero -->
+    <div id="hero-sky" style="position:absolute;inset:0;z-index:0;transition:background 3s ease;"></div>
+
+    <!-- Sun rays -->
+    <div class="rays-wrap">
+      <svg viewBox="0 0 340 260" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="rg" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#fff" stop-opacity="0.85" id="rg-c"/>
+            <stop offset="100%" stop-color="#fff" stop-opacity="0" id="rg-o"/>
+          </radialGradient>
+        </defs>
+        <g id="rays" opacity="0.65">
+          <line x1="170" y1="104" x2="170" y2="0"   stroke="url(#rg)" stroke-width="22" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="240" y2="8"   stroke="url(#rg)" stroke-width="16" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="310" y2="50"  stroke="url(#rg)" stroke-width="13" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="340" y2="140" stroke="url(#rg)" stroke-width="10" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="100" y2="8"   stroke="url(#rg)" stroke-width="16" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="30"  y2="50"  stroke="url(#rg)" stroke-width="13" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="0"   y2="140" stroke="url(#rg)" stroke-width="10" stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="270" y2="20"  stroke="url(#rg)" stroke-width="9"  stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="70"  y2="20"  stroke="url(#rg)" stroke-width="9"  stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="330" y2="100" stroke="url(#rg)" stroke-width="8"  stroke-linecap="round"/>
+          <line x1="170" y1="104" x2="10"  y2="100" stroke="url(#rg)" stroke-width="8"  stroke-linecap="round"/>
+        </g>
+        <circle cx="170" cy="104" r="28" fill="#fff" opacity="0.18" id="glow-circle"/>
+      </svg>
+    </div>
+
+    <!-- Cross -->
+    <div class="cross-container">
+      <svg width="80" height="120" viewBox="0 0 80 120" fill="none">
+        <defs>
+          <linearGradient id="cg" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff"/>
+            <stop offset="100%" stop-color="#f0c060" id="cg-b"/>
+          </linearGradient>
+          <filter id="gf"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        </defs>
+        <rect x="33" y="0"  width="14" height="120" rx="4" fill="url(#cg)" filter="url(#gf)"/>
+        <rect x="6"  y="26" width="68" height="14"  rx="4" fill="url(#cg)" filter="url(#gf)"/>
+      </svg>
+    </div>
+
+    <div class="hero-title">SCRIPTURE DEEP</div>
+    <div class="hero-sub" id="time-greet">Welcome</div>
+  </div>
+
+  <!-- Daily verse -->
+  <div class="daily-card">
+    <div class="daily-label">✦ VERSE OF THE DAY ✦</div>
+    <div class="daily-text" id="dv-text">Loading…</div>
+    <div class="daily-ref" id="dv-ref"></div>
+  </div>
+
+  <!-- Library panel -->
+  <div class="lib-panel">
+    <button class="explore-row" onclick="showScreen('s-theology')">
+      🔍 <span>Theology Explorer — Search any concept or doctrine</span>
+    </button>
+    <div class="lib-title">Bible Library</div>
+    <div class="lib-sub">Choose a book to begin reading</div>
+    <input class="search-inp" id="book-search" placeholder="Search books…" oninput="renderBooks()"/>
+    <div class="tabs">
+      <button class="tab active" id="tab-all" onclick="setTab('all')">All Books</button>
+      <button class="tab" id="tab-ot" onclick="setTab('ot')">Old Testament</button>
+      <button class="tab" id="tab-nt" onclick="setTab('nt')">New Testament</button>
+    </div>
+    <div id="book-list"></div>
+    <div class="footer-copy">© 2025 SCRIPTURE DEEP. ALL RIGHTS RESERVED.</div>
+  </div>
+</div>
+
+<!-- ══ CHAPTERS SCREEN ══ -->
+<div id="s-chapters" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M7 1L1 6.5L7 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Books
+    </button>
+    <button class="badge" id="ch-badge" onclick="showScreen('s-trans')">KJV ▾</button>
+  </div>
+  <div class="content">
+    <div class="pg-title" id="ch-title"></div>
+    <div class="pg-sub" id="ch-sub"></div>
+    <div class="ch-grid" id="ch-grid"></div>
+  </div>
+</div>
+
+<!-- ══ READER SCREEN ══ -->
+<div id="s-reader" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M7 1L1 6.5L7 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span id="rdr-back">Chapters</span>
+    </button>
+    <button class="badge" id="rdr-badge" onclick="showScreen('s-trans')">KJV ▾</button>
+  </div>
+  <div class="reader-wrap">
+    <div class="ch-title" id="rdr-title"></div>
+    <div class="ch-hint">Read the chapter below. Tap any verse number for a full deep analysis.</div>
+    <div id="rdr-body"></div>
+  </div>
+</div>
+
+<!-- ══ THEOLOGY SCREEN ══ -->
+<div id="s-theology" class="screen">
+  <div class="topbar">
+    <button class="back-btn" onclick="goBack()">
+      <svg width="8" height="13" viewBox="0 0 8 13" fill="none"><path d="M7 1L1 6.5L7 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg> Library
+    </button>
+    <button class="badge" id="th-badge" onclick="showScreen('s-trans')">KJV ▾</button>
+  </div>
+  <div class="content">
+    <div class="pg-title">Theology Explorer</div>
+    <div class="pg-sub">Type any concept, doctrine, or topic for a clear biblical explanation</div>
+    <div class="theo-wrap">
+      <input class="theo-inp" id="theo-inp" placeholder="e.g. Holy Trinity, Grace, Baptism, Salvation…" onkeydown="if(event.key==='Enter')doTheo()"/>
+      <button class="theo-go" onclick="doTheo()">Go</button>
+    </div>
+    <div class="sec-lbl" style="color:#555;">POPULAR TOPICS</div>
+    <div class="topic-wrap" id="topic-wrap"></div>
+    <div id="theo-result"></div>
+  </div>
+</div>
+
+<!-- ══ ANALYSIS OVERLAY ══ -->
+<div class="overlay" id="overlay" onclick="ovTap(event)">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <button class="sh-close" onclick="closeOv()">✕</button>
+    <div class="sh-inner" id="sh-inner"></div>
+  </div>
+</div>
+
+<script>
+// ══ API KEY ══
+const OR_KEY='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';
+const GROQ_KEY='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';
+const GEMINI_KEY='AIzaSyDTpr5o_XfmRjOYlrlXUWucU7hRlaQvWOQ';
+
+// ══ TRANSLATIONS — bolls.life supported ══
+const TRANS=[
+  {code:'KJV', name:'King James Version',        year:'1611'},
+  {code:'NLT', name:'New Living Translation',    year:'1996'},
+  {code:'NIV', name:'New International Version', year:'1978'},
+  {code:'ESV', name:'English Standard Version',  year:'2001'},
+];
+
+// ══ BIBLE DATA ══
+const OT=['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'];
+const NT=['Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'];
+const CH={'Genesis':50,'Exodus':40,'Leviticus':27,'Numbers':36,'Deuteronomy':34,'Joshua':24,'Judges':21,'Ruth':4,'1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,'1 Chronicles':29,'2 Chronicles':36,'Ezra':10,'Nehemiah':13,'Esther':10,'Job':42,'Psalms':150,'Proverbs':31,'Ecclesiastes':12,'Song of Solomon':8,'Isaiah':66,'Jeremiah':52,'Lamentations':5,'Ezekiel':48,'Daniel':12,'Hosea':14,'Joel':3,'Amos':9,'Obadiah':1,'Jonah':4,'Micah':7,'Nahum':3,'Habakkuk':3,'Zephaniah':3,'Haggai':2,'Zechariah':14,'Malachi':4,'Matthew':28,'Mark':16,'Luke':24,'John':21,'Acts':28,'Romans':16,'1 Corinthians':16,'2 Corinthians':13,'Galatians':6,'Ephesians':6,'Philippians':4,'Colossians':4,'1 Thessalonians':5,'2 Thessalonians':3,'1 Timothy':6,'2 Timothy':4,'Titus':3,'Philemon':1,'Hebrews':13,'James':5,'1 Peter':5,'2 Peter':3,'1 John':5,'2 John':1,'3 John':1,'Jude':1,'Revelation':22};
+const BN={'Genesis':1,'Exodus':2,'Leviticus':3,'Numbers':4,'Deuteronomy':5,'Joshua':6,'Judges':7,'Ruth':8,'1 Samuel':9,'2 Samuel':10,'1 Kings':11,'2 Kings':12,'1 Chronicles':13,'2 Chronicles':14,'Ezra':15,'Nehemiah':16,'Esther':17,'Job':18,'Psalms':19,'Proverbs':20,'Ecclesiastes':21,'Song of Solomon':22,'Isaiah':23,'Jeremiah':24,'Lamentations':25,'Ezekiel':26,'Daniel':27,'Hosea':28,'Joel':29,'Amos':30,'Obadiah':31,'Jonah':32,'Micah':33,'Nahum':34,'Habakkuk':35,'Zephaniah':36,'Haggai':37,'Zechariah':38,'Malachi':39,'Matthew':40,'Mark':41,'Luke':42,'John':43,'Acts':44,'Romans':45,'1 Corinthians':46,'2 Corinthians':47,'Galatians':48,'Ephesians':49,'Philippians':50,'Colossians':51,'1 Thessalonians':52,'2 Thessalonians':53,'1 Timothy':54,'2 Timothy':55,'Titus':56,'Philemon':57,'Hebrews':58,'James':59,'1 Peter':60,'2 Peter':61,'1 John':62,'2 John':63,'3 John':64,'Jude':65,'Revelation':66};
+
+const DAILY=[
+  {t:'For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life.',r:'John 3:16'},
+  {t:'I can do all this through him who gives me strength.',r:'Philippians 4:13'},
+  {t:'The Lord is my shepherd, I lack nothing.',r:'Psalm 23:1'},
+  {t:'Trust in the Lord with all your heart and lean not on your own understanding.',r:'Proverbs 3:5'},
+  {t:'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you.',r:'Jeremiah 29:11'},
+  {t:'Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.',r:'Joshua 1:9'},
+  {t:'And we know that in all things God works for the good of those who love him.',r:'Romans 8:28'},
+  {t:'The Lord is my light and my salvation — whom shall I fear?',r:'Psalm 27:1'},
+  {t:'Come to me, all you who are weary and burdened, and I will give you rest.',r:'Matthew 11:28'},
+  {t:'But seek first his kingdom and his righteousness, and all these things will be given to you as well.',r:'Matthew 6:33'},
+];
+
+const TOPICS=['Holy Trinity','Grace','Salvation','Baptism','Faith vs Works','The Holy Spirit','Forgiveness','Heaven & Hell','Prayer','The Gospel','Repentance','Covenant','Atonement','Resurrection','The Second Coming'];
+
+// ══ STATE ══
+let trans=JSON.parse(localStorage.getItem('sd_trans')||'null')||TRANS[0];
+let curBook=null,curCh=null,curTab='all';
+let cachedVerses=[];
+const stack=[];
+
+// ══ HELPERS ══
+function esc(s){
+  if(s==null)return'';
+  if(typeof s==='object'){
+    if(Array.isArray(s))return s.map(x=>typeof x==='object'?Object.values(x).join(' '):String(x)).join('\n');
+    return Object.entries(s).map(([k,v])=>k+': '+v).join('\n');
+  }
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ══ TIME-BASED SKY ══
+function setSky(){
+  const h=new Date().getHours();
+  let bg,rc,greet;
+  if(h>=5&&h<11){
+    bg='linear-gradient(180deg,#3a7bd5 0%,#6baed6 35%,#f0c060 100%)';
+    rc='rgba(255,240,180,0.85)';greet='Good morning';
+  }else if(h>=11&&h<16){
+    bg='linear-gradient(180deg,#74b9e8 0%,#a8d8ea 50%,#f5e96e 100%)';
+    rc='rgba(255,255,220,0.9)';greet='Good afternoon';
+  }else if(h>=16&&h<19){
+    bg='linear-gradient(180deg,#c0392b 0%,#e8603c 30%,#f4a44a 65%,#f5c842 100%)';
+    rc='rgba(255,200,80,0.8)';greet='Good evening';
+  }else{
+    bg='linear-gradient(180deg,#0d1528 0%,#1a3a6b 55%,#2a4a8b 100%)';
+    rc='rgba(100,130,220,0.6)';greet='Good evening';
+  }
+  const sky=document.getElementById('hero-sky');
+  if(sky)sky.style.background=bg;
+  // Update ray color
+  const rgc=document.getElementById('rg-c');
+  if(rgc)rgc.style.stopColor=rc;
+  const el=document.getElementById('time-greet');
+  if(el)el.textContent=greet;
+}
+
+function setDaily(){
+  const idx=new Date().getDate()%DAILY.length;
+  const v=DAILY[idx];
+  const t=document.getElementById('dv-text');
+  const r=document.getElementById('dv-ref');
+  if(t)t.textContent=v.t;
+  if(r)r.textContent='— '+v.r;
+}
+
+// ══ NAVIGATION ══
+function showScreen(id){
+  const cur=document.querySelector('.screen.active')?.id;
+  if(cur&&cur!==id)stack.push(cur);
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+  updateBadges();
+}
+
+function goBack(){
+  if(document.getElementById('overlay').classList.contains('open')){closeOv();return;}
+  if(stack.length>0){
+    const p=stack.pop();
+    document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+    document.getElementById(p).classList.add('active');
+    window.scrollTo(0,0);updateBadges();
+  }
+}
+
+window.addEventListener('popstate',()=>{history.pushState(null,'');goBack();});
+
+function updateBadges(){
+  ['lib-badge','ch-badge','rdr-badge','th-badge'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.textContent=trans.code+' ▾';
+  });
+}
+
+// ══ TRANSLATIONS ══
+function renderTrans(){
+  document.getElementById('trans-list').innerHTML=TRANS.map(t=>`
+    <button class="tc ${trans.code===t.code?'sel':''}" onclick="pickTrans('${t.code}')">
+      <div><div class="tc-code">${t.code}</div><div class="tc-name">${t.name} · ${t.year}</div></div>
+      <div class="radio">${trans.code===t.code?'<div class="radio-dot"></div>':''}</div>
+    </button>`).join('');
+}
+
+function pickTrans(code){
+  trans=TRANS.find(t=>t.code===code);
+  localStorage.setItem('sd_trans',JSON.stringify(trans));
+  renderTrans();updateBadges();
+  setTimeout(()=>showScreen('s-library'),150);
+}
+
+// ══ LIBRARY ══
+function setTab(t){
+  curTab=t;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+  renderBooks();
+}
+
+function renderBooks(){
+  const q=(document.getElementById('book-search')?.value||'').toLowerCase();
+  const el=document.getElementById('book-list');
+  if(!el)return;
+  let html='';
+  const sec=(books,label)=>{
+    const f=books.filter(b=>b.toLowerCase().includes(q));
+    if(!f.length)return'';
+    let s=curTab==='all'?`<div class="sec-lbl">${label}</div>`:'';
+    s+=`<div class="book-grid">`;
+    f.forEach(b=>{
+      s+=`<button class="book-btn" onclick="pickBook('${b.replace(/'/g,"\\'")}')">
+        <div class="bname">${b}</div><div class="bmeta">${CH[b]} ch</div>
+      </button>`;
+    });
+    s+=`</div>`;return s;
+  };
+  if(curTab==='all'||curTab==='ot')html+=sec(OT,'OLD TESTAMENT');
+  if(curTab==='all'||curTab==='nt')html+=sec(NT,'NEW TESTAMENT');
+  el.innerHTML=html||'<p style="color:#555;font-style:italic;text-align:center;padding:30px 0;">No books found.</p>';
+}
+
+// ══ BOOK → CHAPTERS ══
+function pickBook(book){
+  curBook=book;curCh=null;
+  document.getElementById('ch-title').textContent=book;
+  document.getElementById('ch-sub').textContent=CH[book]+' chapters · '+trans.name;
+  let html='';
+  for(let i=1;i<=CH[book];i++){
+    html+=`<button class="ch-btn" onclick="pickChapter(${i})">${i}</button>`;
+  }
+  document.getElementById('ch-grid').innerHTML=html;
+  showScreen('s-chapters');
+}
+
+// ══ CHAPTER → VERSES ══
+async function pickChapter(ch){
+  curCh=ch;cachedVerses=[];
+  document.getElementById('rdr-back').textContent=curBook;
+  document.getElementById('rdr-title').textContent=curBook+' '+ch;
+  document.getElementById('rdr-body').innerHTML='<div class="load-box"><div class="spinner"></div>Loading '+curBook+' '+ch+'…</div>';
+  showScreen('s-reader');
+  try{
+    // Use bolls.life — proven working, returns [{verse,text}]
+    const url=`https://bolls.life/get-text/${trans.code}/${BN[curBook]}/${ch}/`;
+    const res=await fetch(url);
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    const data=await res.json();
+    if(!Array.isArray(data)||!data.length)throw new Error('Empty response');
+    cachedVerses=data;
+    let html='';
+    data.forEach(v=>{
+      const txt=v.text.replace(/<[^>]*>/g,'').replace(/\d+/g,'').replace(/\s+/g,' ').trim();
+      html+=`<div class="v-row" onclick="openAnalysis(${v.verse})">
+        <div class="vn-wrap"><span class="vnum">${v.verse}</span><span class="vtap">TAP</span></div>
+        <div class="vtxt">${esc(txt)}</div>
+      </div>`;
+    });
+    document.getElementById('rdr-body').innerHTML=html;
+  }catch(e){
+    // Fallback: try WEB translation which is always available on bolls.life
+    try{
+      const url2=`https://bolls.life/get-text/WEB/${BN[curBook]}/${ch}/`;
+      const res2=await fetch(url2);
+      if(!res2.ok)throw new Error('fallback failed');
+      const data2=await res2.json();
+      if(!Array.isArray(data2)||!data2.length)throw new Error('empty');
+      cachedVerses=data2;
+      let html2=`<p style="color:#b8924a;font-size:12px;font-style:italic;margin-bottom:16px;padding:8px 12px;background:rgba(201,150,12,0.06);border-radius:8px;">Note: Showing World English Bible (${trans.code} unavailable for this chapter)</p>`;
+      data2.forEach(v=>{
+        const txt=v.text.replace(/<[^>]*>/g,'').replace(/\d+/g,'').replace(/\s+/g,' ').trim();
+        html2+=`<div class="v-row" onclick="openAnalysis(${v.verse})">
+          <div class="vn-wrap"><span class="vnum">${v.verse}</span><span class="vtap">TAP</span></div>
+          <div class="vtxt">${esc(txt)}</div>
+        </div>`;
+      });
+      document.getElementById('rdr-body').innerHTML=html2;
+    }catch(e2){
+      document.getElementById('rdr-body').innerHTML='<p style="color:#e88;font-size:14px;padding:20px 0;">Could not load chapter. Please check your connection and try again.</p>';
+    }
+  }
+}
+
+// ══ ANALYSIS ══
+function openAnalysis(v){
+  const ref=curBook+' '+curCh+':'+v;
+  const cached=cachedVerses.find(x=>x.verse===v);
+  const vt=cached?cached.text.replace(/<[^>]*>/g,'').replace(/\d+/g,'').replace(/\s+/g,' ').trim():null;
+  document.getElementById('overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  lastRef=ref;lastVt=vt;
+  document.getElementById('sh-inner').innerHTML=`<div class="an-load"><div class="spinner"></div><p>Analyzing ${ref}…</p><small>History · Theology · Original Languages</small></div>`;
+  runAnalysis(ref,vt);
+}
+
+function closeOv(){document.getElementById('overlay').classList.remove('open');document.body.style.overflow='';}
+function ovTap(e){if(e.target===document.getElementById('overlay'))closeOv();}
+
+async function callAI(prompt){
+  const delay=ms=>new Promise(r=>setTimeout(r,ms));
+
+  // ── 1. GROQ — fastest, try first ──
+  try{
+    const r=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+GROQ_KEY},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        messages:[{role:'user',content:prompt}],
+        max_tokens:2000,temperature:0.7
+      })
+    });
+    if(r.ok){
+      const d=await r.json();
+      const t=d.choices?.[0]?.message?.content||'';
+      if(t)return t.replace(/```json|```/g,'').trim();
+    }
+  }catch(e){}
+
+  // ── 2. GEMINI — 1500/day, very reliable ──
+  try{
+    const models=['gemini-2.0-flash','gemini-1.5-flash'];
+    for(const model of models){
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_KEY}`,{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          contents:[{parts:[{text:prompt}]}],
+          generationConfig:{temperature:0.7,maxOutputTokens:2000}
+        })
+      });
+      if(r.ok){
+        const d=await r.json();
+        const t=d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+        if(t)return t.replace(/```json|```/g,'').trim();
+      }
+      if(r.status!==429)break;
+      await delay(1000);
+    }
+  }catch(e){}
+
+  // ── 3. OPENROUTER — fallback with multiple models ──
+  const orModels=[
+    'openrouter/free',
+    'meta-llama/llama-4-maverick:free',
+    'meta-llama/llama-3.3-70b-instruct:free',
+    'google/gemma-3-27b-it:free',
+    'mistralai/mistral-small-3.1-24b-instruct:free',
+  ];
+  for(let i=0;i<orModels.length;i++){
+    try{
+      if(i>0)await delay(500);
+      const r=await fetch('https://openrouter.ai/api/v1/chat/completions',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':'Bearer '+OR_KEY,'HTTP-Referer':window.location.href,'X-Title':'Scripture Deep'},
+        body:JSON.stringify({model:orModels[i],messages:[{role:'user',content:prompt}],max_tokens:2000,temperature:0.7})
+      });
+      if(r.status===429||r.status===503||r.status===502)continue;
+      if(!r.ok)continue;
+      const d=await r.json();
+      const t=d.choices?.[0]?.message?.content||'';
+      if(t)return t.replace(/```json|```/g,'').trim();
+    }catch(e){continue;}
+  }
+
+  throw new Error('busy');
+}
+
+async function runAnalysis(ref,vt){
+  const ctx=vt?`The verse reads: "${vt}"`:'';
+  const p=`You are a world-class Biblical scholar with expertise in theology, ancient languages, and spiritual formation.
+Analyze ${ref} in the ${trans.name} (${trans.code}). ${ctx}
+
+Respond ONLY with a raw JSON object. No markdown, no backticks. All values must be plain text strings:
+{
+  "verseText": "Complete verse text in ${trans.code}",
+  "reference": "${ref} (${trans.code})",
+  "plainSummary": "2-3 sentences in simple everyday language",
+  "historicalContext": "Who wrote this, when, to whom, and what was happening historically and culturally",
+  "originalLanguage": "2-3 key Hebrew or Greek words with transliteration and deeper meaning — as plain sentences",
+  "theologicalMeaning": "Deep truth about God, Jesus, or salvation this verse reveals",
+  "crossReferences": "3 related Bible passages with references and how each connects — as plain text",
+  "practicalApplication": "Specific ways to apply this verse to daily life today",
+  "commonMisunderstandings": "How this verse is often misread and what it actually means",
+  "prayerPrompt": "A heartfelt 3-4 sentence prayer inspired by this verse"
+}`;
+  try{
+    const clean=await callAI(p);
+    const a=JSON.parse(clean);
+    const secs=[
+      {k:'historicalContext',i:'🏛️',t:'Historical Context'},
+      {k:'originalLanguage',i:'📜',t:'Original Language'},
+      {k:'theologicalMeaning',i:'✝️',t:'Theological Meaning'},
+      {k:'crossReferences',i:'🔗',t:'Cross References'},
+      {k:'practicalApplication',i:'🌿',t:'Practical Application'},
+      {k:'commonMisunderstandings',i:'⚠️',t:'Common Misunderstandings'},
+    ];
+    document.getElementById('sh-inner').innerHTML=`
+      <div class="av-card"><div class="av-txt">${esc(a.verseText)}</div><div class="av-ref">${esc(a.reference)}</div></div>
+      <div class="sum-box"><div class="sum-lbl">PLAIN SUMMARY</div><div class="sum-txt">${esc(a.plainSummary)}</div></div>
+      ${secs.map((s,i)=>`
+        <div class="acc" id="ac${i}">
+          <button class="acc-hd" onclick="document.getElementById('ac${i}').classList.toggle('open')">
+            <div class="acc-l"><span class="acc-ic">${s.i}</span><span class="acc-t">${s.t.toUpperCase()}</span></div>
+            <span class="acc-ar">›</span>
+          </button>
+          <div class="acc-bd"><div class="acc-dv"></div><div class="acc-ct">${esc(a[s.k]||'')}</div></div>
+        </div>`).join('')}
+      <div class="pray-box">
+        <div class="pray-hd"><span style="font-size:18px;">🙏</span><span class="pray-lb">PRAYER</span></div>
+        <div class="pray-tx">${esc(a.prayerPrompt)}</div>
+      </div>`;
+  }catch(e){
+    const isbusy=e.message==='busy';
+    document.getElementById('sh-inner').innerHTML=`
+      <div class="an-err">${isbusy?'The AI is busy right now. Tap Retry — it usually works on the second try.':esc(e.message)}</div>
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:4px;">
+        ${isbusy?`<button class="close-btn-sm" onclick="retryAnalysis()">↺ Retry</button>`:''}
+        <button class="close-btn-sm" onclick="closeOv()">Close</button>
+      </div>`;
+  }
+}
+
+// ══ RETRY ══
+let lastRef=null,lastVt=null;
+function retryAnalysis(){
+  if(!lastRef)return;
+  document.getElementById('sh-inner').innerHTML='<div class="an-load"><div class="spinner"></div><p>Retrying…</p><small>Trying a different AI model</small></div>';
+  runAnalysis(lastRef,lastVt);
+}
+
+// ══ THEOLOGY EXPLORER ══
+function renderTopics(){
+  document.getElementById('topic-wrap').innerHTML=TOPICS.map(t=>
+    `<button class="topic-btn" onclick="quickTheo('${t.replace(/'/g,"\\'")}')"> ${t}</button>`
+  ).join('');
+}
+function quickTheo(t){document.getElementById('theo-inp').value=t;doTheo();}
+
+async function doTheo(){
+  const topic=document.getElementById('theo-inp').value.trim();
+  if(!topic)return;
+  const el=document.getElementById('theo-result');
+  el.innerHTML=`<div class="load-box"><div class="spinner"></div>Researching "${esc(topic)}"…</div>`;
+  const p=`You are a world-class Biblical theologian. Explain "${topic}" from a Biblical and theological perspective.
+Respond ONLY with a raw JSON object. No markdown, no backticks. All values must be plain text strings:
+{
+  "title": "Proper theological name for this concept",
+  "oneLiner": "One clear sentence defining this",
+  "whatItMeans": "3-4 sentences in plain language",
+  "whatBibleSays": "What Scripture teaches — 3-4 key passages explained as plain text",
+  "historicalBackground": "How this developed in church history as plain text",
+  "commonMisconceptions": "Common misunderstandings as plain text",
+  "whyItMatters": "Why this matters for daily Christian life as plain text",
+  "keyVerses": "4-5 essential verses with references and notes as plain text"
+}`;
+  try{
+    const clean=await callAI(p);
+    const a=JSON.parse(clean);
+    const secs=[
+      {k:'whatBibleSays',i:'📖',t:'What the Bible Says'},
+      {k:'historicalBackground',i:'🏛️',t:'Historical Background'},
+      {k:'commonMisconceptions',i:'⚠️',t:'Common Misconceptions'},
+      {k:'whyItMatters',i:'🌿',t:'Why It Matters'},
+      {k:'keyVerses',i:'🔗',t:'Key Verses to Study'},
+    ];
+    el.innerHTML=`
+      <div class="av-card" style="margin-bottom:14px;">
+        <div style="font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.6);margin-bottom:8px;">THEOLOGY EXPLORER</div>
+        <div style="font-family:'Cinzel',serif;font-size:18px;color:#fff;margin-bottom:8px;">${esc(a.title)}</div>
+        <div style="font-style:italic;font-size:14px;line-height:1.7;color:rgba(255,255,255,0.85);">${esc(a.oneLiner)}</div>
+      </div>
+      <div class="sum-box" style="margin-bottom:10px;"><div class="sum-lbl">PLAIN EXPLANATION</div><div class="sum-txt">${esc(a.whatItMeans)}</div></div>
+      ${secs.map((s,i)=>`
+        <div class="acc" id="th${i}">
+          <button class="acc-hd" onclick="document.getElementById('th${i}').classList.toggle('open')">
+            <div class="acc-l"><span class="acc-ic">${s.i}</span><span class="acc-t">${s.t.toUpperCase()}</span></div>
+            <span class="acc-ar">›</span>
+          </button>
+          <div class="acc-bd"><div class="acc-dv"></div><div class="acc-ct">${esc(a[s.k]||'')}</div></div>
+        </div>`).join('')}`;
+  }catch(e){
+    const isbusy=e.message==='busy';
+    el.innerHTML=`<div class="an-err">${isbusy?'The AI is busy right now. Tap Retry to try again.':esc(e.message)}</div>
+      <div style="text-align:center;margin-top:8px;">
+        ${isbusy?`<button class="close-btn-sm" onclick="doTheo()">↺ Retry</button>`:''}
+      </div>`;
+  }
+}
+
+// ══ INIT ══
+window.addEventListener('DOMContentLoaded',function(){
+  setSky();
+  setDaily();
+  renderTrans();
+  renderBooks();
+  renderTopics();
+  updateBadges();
+  setInterval(setSky,300000);
+  // Seed history for Android back button
+  for(let i=0;i<5;i++)history.pushState(null,'');
+});
+</script>
+</body>
+</html>
